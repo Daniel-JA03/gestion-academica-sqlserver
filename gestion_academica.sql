@@ -4,10 +4,17 @@ GO
 USE gestion_academica
 GO
 
+CREATE TABLE facultades (
+facultad_id INT PRIMARY KEY IDENTITY(1,1),
+nombre VARCHAR(100) NOT NULL
+)
+GO
+
 CREATE TABLE carreras (
 carrera_id INT PRIMARY KEY IDENTITY(1,1),
 nombre VARCHAR(100) NOT NULL,
-facultad VARCHAR(100)
+facultad_id INT,
+FOREIGN KEY(facultad_id) REFERENCES facultades(facultad_id)
 )
 GO
 
