@@ -4,15 +4,25 @@ GO
 USE gestion_academica
 GO
 
+CREATE TABLE carreras (
+carrera_id INT PRIMARY KEY IDENTITY(1,1),
+nombre VARCHAR(100) NOT NULL,
+facultad VARCHAR(100)
+)
+GO
+
 CREATE TABLE alumnos (
 alumno_id INT PRIMARY KEY IDENTITY(1,1),
 dni VARCHAR(8) NOT NULL,
 nombre VARCHAR(100),
 apellido VARCHAR(100),
 correo VARCHAR(100),
-fecha_nacimiento DATE
+fecha_nacimiento DATE,
+carrera_id INT,
+FOREIGN KEY(carrera_id) REFERENCES carreras(carrera_id)
 )
 GO
+
 
 CREATE TABLE docentes (
 docente_id INT PRIMARY KEY IDENTITY(1,1),
