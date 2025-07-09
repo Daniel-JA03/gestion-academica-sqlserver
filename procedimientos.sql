@@ -18,7 +18,7 @@ BEGIN
 	BEGIN
 		INSERT INTO facultades (nombre)
 		VALUES (@nombre)
-		PRINT 'Facultad agrgada correctamente.'
+		PRINT 'Facultad agregada correctamente.'
 	END
 	ELSE
 	BEGIN
@@ -123,3 +123,134 @@ GO
 EXEC sp_eliminarFacultad 8
 GO
 
+-- ======================================
+-- PROCEDIMIENTOS: CARRERAS
+-- ======================================
+IF OBJECT_ID('sp_agregarCarrera') IS NOT NULL 
+	DROP PROC sp_agregarCarrera
+GO
+-- Agregar una nueva Facultad
+CREATE PROC sp_agregarCarrera (
+@nombre VARCHAR(100),
+@idfacultad INT
+)
+AS
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM carreras WHERE nombre = @nombre)
+	BEGIN
+		INSERT INTO carreras(nombre, facultad_id)
+		VALUES (@nombre, @idfacultad)
+		PRINT 'Carrera agregada correctamente.'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: La Carrera ya existe.'
+	END
+END
+GO
+
+-- PRUEBA PROCEDURE
+EXEC sp_agregarCarrera 'Artes Escénicas', 9
+GO
+--
+---
+IF OBJECT_ID('sp_listarCarrerasBack') IS NOT NULL 
+	DROP PROC sp_listarCarrerasBack
+GO
+
+-- Listar Carreras Backend
+CREATE PROC sp_listarCarrerasBack
+AS
+BEGIN
+	SELECT
+		c.carrera_id,
+		c.nombre,
+		c.facultad_id
+	FROM carreras AS c
+END
+GO
+-- PRUEBA PROCEDURE
+sp_listarCarrerasBack
+--
+---
+IF OBJECT_ID('sp_listarCarrerasFront') IS NOT NULL 
+	DROP PROC sp_listarCarrerasFront
+GO
+
+-- Listar Carreras Frontend
+CREATE PROC sp_listarCarrerasFront
+AS
+BEGIN
+	SELECT 
+		c.carrera_id AS ID,
+		c.nombre AS NombreCarrera,
+		f.nombre AS Facultad
+	FROM carreras AS c
+	JOIN facultades f ON f.facultad_id = c.facultad_id
+	ORDER BY c.nombre ASC
+END
+GO
+-- PRUEBA PROCEDURE
+sp_listarCarrerasFront
+--
+---
+IF OBJECT_ID('sp_actualizarCarreras') IS NOT NULL 
+	DROP PROC sp_actualizarCarreras
+GO
+
+-- Actualizar Carreras
+CREATE PROC sp_actualizarCarreras (
+@idcarrera INT,
+@nombre VARCHAR(100),
+@idfacultad INT
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM carreras WHERE carrera_id = @idcarrera)
+	BEGIN
+		UPDATE carreras
+		SET nombre = @nombre,
+			facultad_id = @idfacultad
+		WHERE carrera_id = @idcarrera
+
+		PRINT 'Se actualizo la Carrera Correctamente.'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: La Carrera no existe.'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+sp_actualizarCarreras 21, 'Artes Escénicas', 9
+--
+---
+IF OBJECT_ID('sp_eliminarCarrera') IS NOT NULL 
+	DROP PROC sp_eliminarCarrera
+GO
+
+-- Eliminar Carrera
+CREATE PROC sp_eliminarCarrera (
+@idcarrera INT
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM carreras WHERE carrera_id = @idcarrera)
+	BEGIN
+		DELETE 
+		FROM carreras
+		WHERE carrera_id = @idcarrera
+
+		PRINT 'Se elimino correctamente la facultad'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: La Carrera no existe.'
+	END
+END
+GO
+
+-- PRUEBA PROCEDURE
+EXEC sp_eliminarCarrera 21
+--
+---
