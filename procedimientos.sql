@@ -757,3 +757,81 @@ END
 GO
 -- PRUEBA PROCEDURE
 EXEC sp_eliminarMatricula 28
+--
+---
+
+-- ======================================
+-- PROCEDIMIENTOS: CALIFICACIONES
+-- ======================================
+IF OBJECT_ID('sp_agregarCalificacion') IS NOT NULL 
+	DROP PROC sp_agregarCalificacion
+GO
+-- Agregar una nueva calificacion
+CREATE PROC sp_agregarCalificacion (
+@idmatricula INT,
+@nota DECIMAL(10, 2),
+@fechregistro DATE
+)
+AS
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM matriculas WHERE matricula_id = @idmatricula)
+	BEGIN
+		PRINT 'ERROR: La matricula no existe'
+		RETURN
+	END
+
+	-- Validar que la nota este entre 0 y 20
+	IF @nota < 0 OR @nota > 20
+	BEGIN
+		PRINT 'ERROR: La nota debe estar entre 0 y 20.'
+        RETURN
+	END
+
+	BEGIN TRY
+		INSERT INTO calificaciones(matricula_id, nota, fecha_registro)
+		VALUES (@idmatricula, @nota, @fechregistro)
+
+		PRINT 'Se registro correctamente la calificacion'
+	END TRY
+	BEGIN CATCH
+		-- Manejo de errores
+		PRINT 'Ocurrio un error al registrar la calificacion: ' + ERROR_MESSAGE()
+	END CATCH
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_agregarCalificacion 26, 19, '2023-09-15'
+
+--
+---
+IF OBJECT_ID('sp_listarCalificacionesPorAlumno') IS NOT NULL 
+	DROP PROC sp_listarCalificacionesPorAlumno
+GO
+-- Listar calificaiones por alumno
+CREATE PROC sp_listarCalificacionesPorAlumno (
+	@idalumno INT
+)
+AS
+BEGIN 
+	IF NOT EXISTS (SELECT 1 FROM alumnos WHERE alumno_id = @idalumno)
+	BEGIN
+		PRINT 'ERROR: El alumno no existe'
+		RETURN
+	END
+
+	SELECT
+		CONCAT(a.nombre, SPACE(1), a.apellido) AS Alumno,
+		cu.nombre AS Curso,
+		m.fecha_matricula AS FecjaMatricula,
+		c.nota AS Nota,
+		c.fecha_registro AS FechaCalificacion
+	FROM matriculas AS m
+		JOIN alumnos a ON a.alumno_id = m.alumno_id
+		JOIN cursos cu ON cu.curso_id = m.curso_id 
+		LEFT JOIN calificaciones c ON c.matricula_id = m.matricula_id
+	WHERE m.alumno_id = @idalumno
+	ORDER BY cu.nombre, c.fecha_registro DESC
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_listarCalificacionesPorAlumno 20
