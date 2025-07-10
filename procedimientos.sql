@@ -629,7 +629,7 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		PRINT 'ERROR: El Curso ya existe.'
+		PRINT 'ERROR: El Curso no existe.'
 	END
 END
 GO
@@ -656,10 +656,104 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		PRINT 'ERROR: El Curso ya existe.'
+		PRINT 'ERROR: El Curso no existe.'
 	END
 END
 GO
 -- PRUEBA PROCEDURE
 EXEC sp_eliminarCurso 26
+--
+---
 
+-- ======================================
+-- PROCEDIMIENTOS: MATRICULAS
+-- ======================================
+IF OBJECT_ID('sp_agregarMatricula') IS NOT NULL 
+	DROP PROC sp_agregarMatricula
+GO
+-- Agregar un nuevo Matricula
+CREATE PROC sp_agregarMatricula (
+@idalumno INT,
+@idcurso INT,
+@fecmatri DATE
+)
+AS
+BEGIN
+	INSERT INTO matriculas(alumno_id, curso_id, fecha_matricula)
+	VALUES(@idalumno, @idcurso, @fecmatri)
+	PRINT 'Matricula registrado correctamente'
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_agregarMatricula 20, 12, '2023-05-03'
+
+select * from matriculas
+--
+---
+IF OBJECT_ID('sp_listarMatriculaBack') IS NOT NULL 
+	DROP PROC sp_listarMatriculaBack
+GO
+
+-- Listar Matricula Backend
+CREATE PROC sp_listarMatriculaBack
+AS
+BEGIN
+	SELECT 
+	m.matricula_id,
+	m.alumno_id,
+	m.curso_id,
+	m.fecha_matricula
+	FROM matriculas AS m
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_listarMatriculaBack
+--
+---
+IF OBJECT_ID('sp_listarMatriculaFrond') IS NOT NULL 
+	DROP PROC sp_listarMatriculaFrond
+GO
+-- Listar Matricula Frontend
+CREATE PROC sp_listarMatriculaFrond
+AS
+BEGIN
+	SELECT
+		m.matricula_id AS ID,
+		CONCAT(a.nombre, SPACE(1), a.apellido) AS Alumno,
+		c.nombre AS Curso,
+		m.fecha_matricula AS FechaMatricula
+	FROM matriculas AS m
+	JOIN alumnos a ON a.alumno_id = m.alumno_id
+	JOIN cursos c ON c.curso_id = m.curso_id
+	ORDER BY Alumno ASC
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_listarMatriculaFrond
+--
+---
+IF OBJECT_ID('sp_eliminarMatricula') IS NOT NULL 
+	DROP PROC sp_eliminarMatricula
+GO
+
+-- Eliminar Matricula
+CREATE PROC sp_eliminarMatricula (
+@idmatricula INT
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM matriculas WHERE matricula_id = @idmatricula)
+	BEGIN
+		DELETE
+		FROM matriculas
+		WHERE matricula_id = @idmatricula
+		PRINT 'Se elimino Matricula Correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: La Matricula no existe.'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_eliminarMatricula 28
