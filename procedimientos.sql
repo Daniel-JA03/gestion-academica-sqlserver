@@ -835,3 +835,30 @@ END
 GO
 -- PRUEBA PROCEDURE
 EXEC sp_listarCalificacionesPorAlumno 20
+
+-- Calcular promedio por alumno
+IF OBJECT_ID('sp_calcularPromedioAlumno') IS NOT NULL
+    DROP PROCEDURE sp_calcularPromedioAlumno
+GO
+
+CREATE PROCEDURE sp_calcularPromedioAlumno (
+    @alumno_id INT
+)
+AS
+BEGIN
+    SELECT 
+        a.alumno_id,
+        a.nombre + ' ' + a.apellido AS Alumno,
+        COUNT(c.nota) AS TotalNotas,
+        ROUND(AVG(c.nota), 2) AS PromedioFinal
+    FROM alumnos a
+    INNER JOIN matriculas m ON a.alumno_id = m.alumno_id
+    INNER JOIN calificaciones c ON m.matricula_id = c.matricula_id
+    WHERE a.alumno_id = @alumno_id
+    GROUP BY a.alumno_id, a.nombre, a.apellido
+END
+GO
+
+-- PRUEBA PROCEDURE
+EXEC sp_calcularPromedioAlumno 1
+GO
