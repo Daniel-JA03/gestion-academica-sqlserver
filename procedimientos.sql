@@ -860,5 +860,5 @@ END
 GO
 
 -- PRUEBA PROCEDURE
-EXEC sp_calcularPromedioAlumno 1
+EXEC sp_calcularPromedioAlumno 14
 GO
