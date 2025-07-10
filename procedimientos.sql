@@ -524,3 +524,142 @@ END
 GO
 -- PRUEBA PROCEDURE
 EXEC sp_eliminarDocente 21
+--
+---
+
+-- ======================================
+-- PROCEDIMIENTOS: CURSOS
+-- ======================================
+IF OBJECT_ID('sp_agregarCurso') IS NOT NULL 
+	DROP PROC sp_agregarCurso
+GO
+-- Agregar un nuevo Curso
+CREATE PROC sp_agregarCurso (
+@nombre VARCHAR(100),
+@descrip TEXT,
+@credit INT,
+@iddocente INT
+)
+AS
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM cursos WHERE nombre = @nombre)
+	BEGIN
+		INSERT INTO cursos(nombre, descripcion, creditos, docente_id)
+		VALUES(@nombre, @descrip, @credit, @iddocente)
+
+		PRINT 'Curso agregado correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: El Curso ya existe.'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_agregarCurso 'POO', 'Programacion Orientada a Objetos Java', 3, 16
+--
+---
+IF OBJECT_ID('sp_listarCursosBack') IS NOT NULL 
+	DROP PROC sp_listarCursosBack
+GO
+
+-- Listar Cursos Backend
+CREATE PROC sp_listarCursosBack
+AS
+BEGIN
+	SELECT
+		c.curso_id,
+		c.nombre,
+		c.descripcion,
+		c.creditos,
+		c.docente_id
+	FROM cursos AS c
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_listarCursosBack
+--
+---
+IF OBJECT_ID('sp_listarCursosFrond') IS NOT NULL 
+	DROP PROC sp_listarCursosFrond
+GO
+-- Listar Facultades Frontend
+CREATE PROC sp_listarCursosFrond
+AS
+BEGIN
+	SELECT 
+		c.curso_id AS ID,
+		c.nombre AS NombreCurso,
+		c.descripcion AS Descripcion,
+		c.creditos AS Creditos,
+		CONCAT(d.nombre, SPACE(1), d.apellido) AS Docente
+	FROM cursos AS c
+	JOIN docentes d ON d.docente_id = c.docente_id
+	ORDER BY c.nombre ASC
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_listarCursosFrond
+--
+---
+IF OBJECT_ID('sp_actualizarCurso') IS NOT NULL 
+	DROP PROC sp_actualizarCurso
+GO
+
+-- Actualizar Curso
+CREATE PROC sp_actualizarCurso (
+@idcurso INT,
+@nombre VARCHAR(100),
+@descrip TEXT,
+@credit INT,
+@iddocente INT
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM cursos WHERE curso_id = @idcurso)
+	BEGIN
+		UPDATE cursos
+		SET nombre = @nombre,
+			descripcion = @descrip,
+			creditos = @credit,
+			docente_id = @iddocente
+		WHERE curso_id = @idcurso
+
+		PRINT 'Curso actualizada correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: El Curso ya existe.'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_actualizarCurso 26, 'POO I', 'Programacion Orientada a Objetos Java', 3, 16
+--
+---
+IF OBJECT_ID('sp_eliminarCurso') IS NOT NULL 
+	DROP PROC sp_eliminarCurso
+GO
+
+-- Eliminar Curso
+CREATE PROC sp_eliminarCurso (
+@idcurso INT
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM cursos WHERE curso_id = @idcurso)
+	BEGIN
+		DELETE 
+		FROM cursos
+		WHERE curso_id = @idcurso
+		PRINT 'Se elimino el Curso Correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: El Curso ya existe.'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_eliminarCurso 26
+
