@@ -402,3 +402,125 @@ GO
 
 -- PRUEBA PROCEDURE
 EXEC sp_eliminarAlumno 21
+--
+---
+
+-- ======================================
+-- PROCEDIMIENTOS: DOCENTES
+-- ======================================
+IF OBJECT_ID('sp_agregarDocente') IS NOT NULL 
+	DROP PROC sp_agregarDocente
+GO
+-- Agregar un nuevo Docente
+CREATE PROC sp_agregarDocente (
+@dni VARCHAR(8),
+@nombre VARCHAR(100),
+@apellido VARCHAR(100),
+@correo VARCHAR(100),
+@especi VARCHAR(100)
+)
+AS
+BEGIN
+	IF NOT EXISTS (SELECT 1 FROM docentes WHERE dni = @dni)
+	BEGIN
+		INSERT INTO docentes (dni, nombre, apellido, correo, especialidad)
+		VALUES (@dni, @nombre, @apellido, @correo, @especi)
+
+		PRINT 'Docente registrado correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: ya existe un docente con ese DNI'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_agregarDocente '49023654', 'Daniel', 'Rojas', 'daniel@gmail.com', 'Bases de Datos'
+
+--
+---
+IF OBJECT_ID('sp_listarDocentes') IS NOT NULL 
+	DROP PROC sp_listarDocentes
+GO
+
+-- Listar Docentes Backend
+CREATE PROC sp_listarDocentes
+AS
+BEGIN
+	SELECT 
+		d.docente_id,
+		d.dni,
+		d.nombre,
+		d.apellido,
+		d.correo,
+		d.especialidad
+	FROM docentes AS d
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_listarDocentes
+--
+---
+IF OBJECT_ID('sp_actualizarDocente') IS NOT NULL 
+	DROP PROC sp_actualizarDocente
+GO
+
+-- Actualizar Docente
+CREATE PROC sp_actualizarDocente (
+@iddocente INT,
+@dni VARCHAR(8),
+@nombre VARCHAR(100),
+@apellido VARCHAR(100),
+@correo VARCHAR(100),
+@especi VARCHAR(100)
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM docentes WHERE docente_id = @iddocente)
+	BEGIN
+		UPDATE docentes
+		SET dni = @dni,
+			nombre = @nombre,
+			apellido = @apellido,
+			correo = @correo,
+			especialidad = @especi
+		WHERE docente_id = @iddocente
+
+		PRINT 'Docente actualizado correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: El Docente no existe'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_actualizarDocente 21, 49023654, 'Daniel update', 'Rojas Perez', 'daniel@gmail.com', 'Bases de Datos'
+--
+---
+IF OBJECT_ID('sp_eliminarDocente') IS NOT NULL 
+	DROP PROC sp_eliminarDocente
+GO
+
+-- Eliminar Docente
+CREATE PROC sp_eliminarDocente (
+@iddocente INT
+)
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM docentes WHERE docente_id = @iddocente)
+	BEGIN
+		DELETE
+		FROM docentes
+		WHERE docente_id = @iddocente
+
+		PRINT 'Docente eliminado correctamente'
+	END
+	ELSE
+	BEGIN
+		PRINT 'ERROR: El Docente no existe'
+	END
+END
+GO
+-- PRUEBA PROCEDURE
+EXEC sp_eliminarDocente 21
