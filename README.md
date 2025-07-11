@@ -4,6 +4,12 @@ Este proyecto simula un sistema académico básico. Está desarrollado con **SQL
 
 ---
 
+## 📌 Objetivo del proyecto
+
+Crear una base de datos relacional que permita gestionar de forma organizada la información académica de una institución educativa. Incluye operaciones CRUD, reportes útiles y un mecanismos de control como triggers y transacciones.
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```plaintext
@@ -20,14 +26,16 @@ Este proyecto simula un sistema académico básico. Está desarrollado con **SQL
 
 ## 🗃️ Tablas del Proyecto
 
-- facultades
-- carreras
-- alumnos
-- docentes
-- cursos
-- matriculas
-- calificaciones
-- historial_calificaciones (para el triggers)
+El sistema cuenta con las siguientes tablas, relacionadas mediante claves foráneas:
+
+- `facultades`
+- `carreras`
+- `alumnos`
+- `docentes`
+- `cursos`
+- `matriculas`
+- `calificaciones`
+- `historial_calificaciones` (usada para el trigger de auditoría)
 
 ---
 
@@ -45,32 +53,42 @@ Este proyecto simula un sistema académico básico. Está desarrollado con **SQL
 
 ## 🔍 Consultas Útiles
 
-- Alumnos aprobados por curso (**nota >= 13**)
-- Promedio general por alumno
-- Cursos con más inscritos
-- Alumnos de una carrera específica 
-- Cantidad de alumnos por carrera
-- Cantidad de Cursos sin matriculados
+- ✅ Alumnos aprobados por curso (**nota >= 13**)
+- 📊 Promedio general por alumno
+- 📈 Cursos con más inscritos
+- 🧑‍🎓 Alumnos de una carrera específica 
+- 📌 Cantidad de alumnos por carrera
+- ❌ Cantidad de Cursos sin matriculados
 
 ---
 
 ## 🔄 Vistas SQL
 
-- Alumnos matriculados por curso
-- Detalle de calificaciones
-- Promedio general por alumno
+- `vista_alumnos_matriculados` -> Alumnos matriculados por curso
+- `vista_detalle_calificaciones` -> Detalle de calificaciones
+- `vista_promedio_alumno` -> Promedio general por alumno
 
 ---
 
 ## ⚠️ Triggers
 
-- **TR_Historial_Calificaciones** : inserciones, actualizaciones y eliminaciones sobre la tabla `calificaciones`
+### `TR_Historial_Calificaciones`
+
+Este trigger se activa automáticamente ante **INSERT, UPDATE y DELETE** en la tabla `calificaciones` y guarda un historial completo en la tabla `historial_calificaciones`, registrando:
+
+- Los datos antiguos y nuevos.
+- Fecha y hora del cambio.
+- Usuario y host desde donde se hizo.
+- Tipo de acción: Inserción, Actualización o Eliminación.
+
+Esto permite auditar todos los movimientos sobre las calificaciones.
 
 ---
 
 ## 💾 Transacciones
 
-Incluye una transacción que registra automáticamente una matrícula y su calificación en caso de éxito o realiza rollback en caso de error.
+Se implementó una transacción que garantiza que tanto la matrícula como la calificación del alumno se registren correctamente. En caso de error, se ejecuta un `ROLLBACK`.
+
 
 
 
